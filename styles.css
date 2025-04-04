@@ -305,6 +305,7 @@ h1 {
 #connection-status {
     font-weight: bold;
     margin-bottom: 5px;
+    transition: color 0.3s ease;
 }
 
 #find-opponent-btn {
@@ -417,6 +418,114 @@ h1 {
 #multiplayer-history-list {
     max-height: 400px;
     overflow-y: auto;
+    padding-right: 10px;
+}
+
+.multiplayer-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+    gap: 15px;
+}
+
+.history-player-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 120px;
+}
+
+.history-item-emoji {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    min-height: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.history-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    object-fit: cover;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+}
+
+.history-item-image-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    margin-top: 5px;
+    border: 1px solid #eee;
+}
+
+.history-item-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 5px;
+    word-break: break-word;
+}
+
+.history-vs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-weight: bold;
+    flex-grow: 1;
+    padding: 0 10px;
+}
+
+.history-vs .win, .history-vs .lose {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.history-vs .history-item-reason {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: normal;
+    margin-top: 5px;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.history-player-side.opponent-side {
+    /* Add specific styles if needed, though align-items: center should handle it */
+}
+
+#player-image-display .loading-spinner,
+#opponent-image-display .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.player-side .image-container {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.player-side .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
 }
 
 @media (max-width: 1100px) {
