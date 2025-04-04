@@ -300,7 +300,7 @@ async function resolveBattle() {
     
     try {
         // Check if player selection beats opponent
-        const playerResult = await checkIfBeats(playerSelection.name, opponentSelection);
+        const result = await checkIfBeats(playerSelection.name, opponentSelection);
         
         // Create battle result object
         const battleResult = {
@@ -308,8 +308,8 @@ async function resolveBattle() {
             playerBId: Object.keys(room.peers).find(id => id !== room.clientId),
             playerASelection: playerSelection,
             playerBSelection: opponentSelection,
-            playerAWins: playerResult.isWinner,
-            reason: playerResult.reason,
+            playerAWins: result.isWinner,
+            reason: result.reason,
             timestamp: Date.now(),
             completed: true
         };
@@ -322,6 +322,46 @@ async function resolveBattle() {
     } catch (error) {
         console.error("Error resolving battle:", error);
         multiplayerResultMessage.textContent = "Error determining the winner!";
+    }
+}
+
+async function checkIfBeats(challenger, defending) {
+    const systemPrompt = `You are the judge in a game of "Rock Paper Anything". 
+Assess if the challenger's item would logically beat the defending item in a "rock paper scissors" style comparison.
+Follow these rules:
+1. Consider both real-world physics and pop culture references.
+2. Provide a short explanation for your decision.
+3. Be reasonable but creative in your judgments.
+4. If the challenger wins, provide an appropriate emoji that represents the challenger item.
+
+Response must be in this JSON format:
+{
+  "isWinner": boolean,
+  "reason": "brief explanation",
+  "suggestedEmoji": "emoji character" (only if isWinner is true)
+}`;
+
+    const completion = await websim.chat.completions.create({
+        messages: [
+            {
+                role: "system",
+                content: systemPrompt
+            },
+            {
+                role: "user",
+                content: `Defending: ${defending.name} (${defending.emoji})
+Challenger: ${challenger}
+Is the challenger the winner? Why or why not?`
+            }
+        ],
+        json: true
+    });
+    
+    try {
+        return JSON.parse(completion.content);
+    } catch (error) {
+        console.error("Error parsing LLM response:", error);
+        throw new Error("Failed to get a valid response");
     }
 }
 
