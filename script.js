@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: '🧊', name: 'ice', imageUrl: '' }
     ];
 
+    // Make emojis available globally
+    window.emojis = emojis;
+
     // Game state
     let currentEmoji = emojis[Math.floor(Math.random() * emojis.length)]; // Randomly select initial emoji
     let winningStreak = 0;

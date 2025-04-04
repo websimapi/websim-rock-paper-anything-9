@@ -11,6 +11,7 @@ let playerSelection = null;
 let opponentSelection = null;
 let countdownInterval = null;
 let timeRemaining = 30;
+let emojis = []; // Added this variable to store the emojis locally
 
 // DOM element references
 const multiplayerEmojiGrid = document.getElementById('multiplayer-emoji-grid');
@@ -38,6 +39,9 @@ const lossCount = document.getElementById('loss-count');
 // Initialize Multiplayer Mode
 async function initializeMultiplayerMode() {
     if (multiplayerInitialized) return;
+    
+    // Get emojis from the main script
+    emojis = window.emojis || [];
     
     // Populate emoji grid for multiplayer
     multiplayerEmojiGrid.innerHTML = '';
