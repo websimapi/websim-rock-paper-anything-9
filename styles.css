@@ -144,11 +144,24 @@ h1 {
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
+    position: relative;
 }
 
 .emoji-item:hover {
     background-color: #f0f0f0;
     transform: scale(1.1);
+}
+
+.emoji-image {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    border: 1px solid #ddd;
+    background-color: white;
 }
 
 .result-area {
