@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // Game state
-    let currentEmoji = emojis[0]; // Start with rock
+    let currentEmoji = emojis[Math.floor(Math.random() * emojis.length)]; // Randomly select initial emoji
     let winningStreak = 0;
     let conversationHistory = [];
 
