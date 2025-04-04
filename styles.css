@@ -251,6 +251,174 @@ h1 {
     color: #555;
 }
 
+.game-modes {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.mode-btn {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border: 2px solid #4CAF50;
+    background-color: white;
+    color: #4CAF50;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mode-btn.active, .mode-btn:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.game-mode {
+    display: none;
+}
+
+.game-mode.active {
+    display: block;
+}
+
+.multiplayer-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.connection-area {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-display {
+    font-size: 1.1rem;
+}
+
+#connection-status {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#find-opponent-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#find-opponent-btn:hover {
+    background-color: #3e8e41;
+}
+
+.multiplayer-game-area {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.players-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.player-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-emoji-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.vs-display {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #f44336;
+}
+
+#player-emoji-display, #opponent-emoji-display {
+    font-size: 5rem;
+    transition: transform 0.3s ease;
+}
+
+#player-emoji-name, #opponent-emoji-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.battle-result-area {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+#countdown-timer {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #f44336;
+    margin-bottom: 15px;
+}
+
+#multiplayer-result-message {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    min-height: 40px;
+    line-height: 1.5;
+}
+
+#multiplayer-score {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 1.2rem;
+}
+
+#submission-status {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+    height: 24px;
+}
+
+#timer-display {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #f44336;
+}
+
+.multiplayer-history {
+    background-color: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#multiplayer-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 @media (max-width: 1100px) {
     .game-layout {
         flex-direction: column;
@@ -262,6 +430,15 @@ h1 {
     
     #history-list {
         max-height: 400px;
+    }
+    
+    .players-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .vs-display {
+        margin: 10px 0;
     }
 }
 

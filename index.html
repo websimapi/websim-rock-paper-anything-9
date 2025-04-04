@@ -10,42 +10,118 @@
     <div class="container">
         <h1>Rock Paper Anything</h1>
         
-        <div class="game-layout">
-            <div class="game-area">
-                <div class="current-emoji">
-                    <h2>Current Emoji to Beat:</h2>
-                    <div class="current-display">
-                        <div id="current-emoji-display">🪨</div>
-                        <div id="current-image-display" class="image-container">
-                            <img src="" alt="Current item" id="current-image">
-                            <div class="loading-spinner" id="current-loading-spinner"></div>
+        <div class="game-modes">
+            <button id="single-player-btn" class="mode-btn active">Single Player</button>
+            <button id="multiplayer-btn" class="mode-btn">Online Mode</button>
+        </div>
+        
+        <div id="single-player-mode" class="game-mode active">
+            <div class="game-layout">
+                <div class="game-area">
+                    <div class="current-emoji">
+                        <h2>Current Emoji to Beat:</h2>
+                        <div class="current-display">
+                            <div id="current-emoji-display">🪨</div>
+                            <div id="current-image-display" class="image-container">
+                                <img src="" alt="Current item" id="current-image">
+                                <div class="loading-spinner" id="current-loading-spinner"></div>
+                            </div>
+                        </div>
+                        <div id="current-emoji-name">rock</div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <h2>What beats this?</h2>
+                        <input type="text" id="user-input" placeholder="Type something that beats this...">
+                        <button id="submit-btn">Submit</button>
+                    </div>
+                    
+                    <div class="emoji-selector">
+                        <h3>Or select an emoji:</h3>
+                        <div id="emoji-grid"></div>
+                    </div>
+                    
+                    <div class="result-area">
+                        <div id="result-message"></div>
+                        <div id="score">
+                            <span>Winning streak: <span id="streak-count">0</span></span>
                         </div>
                     </div>
-                    <div id="current-emoji-name">rock</div>
                 </div>
                 
-                <div class="input-area">
-                    <h2>What beats this?</h2>
-                    <input type="text" id="user-input" placeholder="Type something that beats this...">
-                    <button id="submit-btn">Submit</button>
-                </div>
-                
-                <div class="emoji-selector">
-                    <h3>Or select an emoji:</h3>
-                    <div id="emoji-grid"></div>
-                </div>
-                
-                <div class="result-area">
-                    <div id="result-message"></div>
-                    <div id="score">
-                        <span>Winning streak: <span id="streak-count">0</span></span>
-                    </div>
+                <div class="history">
+                    <h3>Battle History</h3>
+                    <div id="history-list"></div>
                 </div>
             </div>
-            
-            <div class="history">
-                <h3>Battle History</h3>
-                <div id="history-list"></div>
+        </div>
+        
+        <div id="multiplayer-mode" class="game-mode">
+            <div class="multiplayer-layout">
+                <div class="connection-area">
+                    <div class="status-display">
+                        <div id="connection-status">Not connected</div>
+                        <div id="opponent-status"></div>
+                    </div>
+                    <button id="find-opponent-btn">Find Opponent</button>
+                </div>
+                
+                <div class="multiplayer-game-area">
+                    <div class="players-container">
+                        <div class="player-side">
+                            <h3>You</h3>
+                            <div class="player-emoji-container">
+                                <div id="player-emoji-display">❓</div>
+                                <div id="player-image-display" class="image-container">
+                                    <img src="" alt="Your item" id="player-image">
+                                    <div class="loading-spinner" id="player-loading-spinner"></div>
+                                </div>
+                            </div>
+                            <div id="player-emoji-name">...</div>
+                        </div>
+                        
+                        <div class="vs-display">VS</div>
+                        
+                        <div class="player-side">
+                            <h3>Opponent</h3>
+                            <div class="player-emoji-container">
+                                <div id="opponent-emoji-display">❓</div>
+                                <div id="opponent-image-display" class="image-container">
+                                    <img src="" alt="Opponent item" id="opponent-image">
+                                    <div class="loading-spinner" id="opponent-loading-spinner"></div>
+                                </div>
+                            </div>
+                            <div id="opponent-emoji-name">...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="battle-result-area">
+                        <div id="countdown-timer"></div>
+                        <div id="multiplayer-result-message"></div>
+                        <div id="multiplayer-score">
+                            <span>Wins: <span id="win-count">0</span></span>
+                            <span>Losses: <span id="loss-count">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <h2>Choose your item:</h2>
+                        <input type="text" id="multiplayer-input" placeholder="Type something to beat your opponent...">
+                        <button id="multiplayer-submit-btn">Submit</button>
+                        <div id="submission-status"></div>
+                        <div id="timer-display"></div>
+                    </div>
+                    
+                    <div class="emoji-selector">
+                        <h3>Or select an emoji:</h3>
+                        <div id="multiplayer-emoji-grid"></div>
+                    </div>
+                </div>
+                
+                <div class="multiplayer-history">
+                    <h3>Battle History</h3>
+                    <div id="multiplayer-history-list"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -54,4 +130,3 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
-

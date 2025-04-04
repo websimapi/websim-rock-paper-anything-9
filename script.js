@@ -255,4 +255,407 @@ Is the challenger the winner? Why or why not?`
         
         historyList.insertBefore(historyItem, historyList.firstChild);
     }
+
+    // Mode switching
+    const singlePlayerBtn = document.getElementById('single-player-btn');
+    const multiplayerBtn = document.getElementById('multiplayer-btn');
+    const singlePlayerMode = document.getElementById('single-player-mode');
+    const multiplayerMode = document.getElementById('multiplayer-mode');
+
+    singlePlayerBtn.addEventListener('click', () => {
+        singlePlayerBtn.classList.add('active');
+        multiplayerBtn.classList.remove('active');
+        singlePlayerMode.classList.add('active');
+        multiplayerMode.classList.remove('active');
+    });
+
+    multiplayerBtn.addEventListener('click', () => {
+        multiplayerBtn.classList.add('active');
+        singlePlayerBtn.classList.remove('active');
+        multiplayerMode.classList.add('active');
+        singlePlayerMode.classList.remove('active');
+        initializeMultiplayerMode();
+    });
+
+    // Initialize Multiplayer Mode
+    let room;
+    let multiplayerInitialized = false;
+    let multiplayerWins = 0;
+    let multiplayerLosses = 0;
+    let isSubmitted = false;
+    let opponentSubmitted = false;
+    let playerSelection = null;
+    let opponentSelection = null;
+    let countdownInterval = null;
+    let timeRemaining = 10;
+
+    // Multiplayer DOM elements
+    const findOpponentBtn = document.getElementById('find-opponent-btn');
+    const connectionStatus = document.getElementById('connection-status');
+    const opponentStatus = document.getElementById('opponent-status');
+    const playerEmojiDisplay = document.getElementById('player-emoji-display');
+    const playerEmojiName = document.getElementById('player-emoji-name');
+    const playerImage = document.getElementById('player-image');
+    const playerLoadingSpinner = document.getElementById('player-loading-spinner');
+    const opponentEmojiDisplay = document.getElementById('opponent-emoji-display');
+    const opponentEmojiName = document.getElementById('opponent-emoji-name');
+    const opponentImage = document.getElementById('opponent-image');
+    const multiplayerInput = document.getElementById('multiplayer-input');
+    const multiplayerSubmitBtn = document.getElementById('multiplayer-submit-btn');
+    const submissionStatus = document.getElementById('submission-status');
+    const timerDisplay = document.getElementById('timer-display');
+    const countdownTimer = document.getElementById('countdown-timer');
+    const multiplayerResultMessage = document.getElementById('multiplayer-result-message');
+    const winCount = document.getElementById('win-count');
+    const lossCount = document.getElementById('loss-count');
+    const multiplayerEmojiGrid = document.getElementById('multiplayer-emoji-grid');
+    const multiplayerHistoryList = document.getElementById('multiplayer-history-list');
+
+    async function initializeMultiplayerMode() {
+        if (multiplayerInitialized) return;
+        
+        // Populate emoji grid for multiplayer
+        multiplayerEmojiGrid.innerHTML = '';
+        emojis.forEach(emojiObj => {
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emojiObj.emoji;
+            emojiItem.title = emojiObj.name;
+            emojiItem.addEventListener('click', () => {
+                multiplayerInput.value = emojiObj.name;
+            });
+            multiplayerEmojiGrid.appendChild(emojiItem);
+        });
+
+        // Reset UI
+        resetMultiplayerUI();
+        
+        // Initialize WebsimSocket
+        room = new WebsimSocket();
+        await room.initialize();
+        
+        connectionStatus.textContent = `Connected as ${room.peers[room.clientId].username}`;
+        
+        // Subscribe to presence changes
+        room.subscribePresence((presence) => {
+            const peerCount = Object.keys(room.peers).length;
+            if (peerCount > 1) {
+                // Get the first peer that isn't ourselves
+                const opponentId = Object.keys(room.peers).find(id => id !== room.clientId);
+                if (opponentId) {
+                    opponentStatus.textContent = `Playing against: ${room.peers[opponentId].username}`;
+                    
+                    // Check if opponent has submitted
+                    if (room.presence[opponentId] && room.presence[opponentId].submitted) {
+                        opponentSubmitted = true;
+                        checkBothSubmitted();
+                    }
+                }
+            } else {
+                opponentStatus.textContent = "Waiting for an opponent...";
+                resetMultiplayerUI();
+            }
+        });
+        
+        // Subscribe to room state changes
+        room.subscribeRoomState((currentRoomState) => {
+            if (currentRoomState.battleResult) {
+                const result = currentRoomState.battleResult;
+                if (result.completed && result.playerAId && result.playerBId) {
+                    // Show the battle result if both players are present
+                    if ((result.playerAId === room.clientId || result.playerBId === room.clientId) && 
+                        result.playerASelection && result.playerBSelection) {
+                        displayBattleResult(result);
+                    }
+                }
+            }
+        });
+        
+        // Subscribe to presence update requests
+        room.subscribePresenceUpdateRequests((updateRequest, fromClientId) => {
+            if (updateRequest.type === 'challenge' && updateRequest.selection) {
+                handleOpponentSelection(updateRequest.selection, fromClientId);
+            }
+        });
+        
+        // Handle submission
+        multiplayerSubmitBtn.addEventListener('click', handleMultiplayerSubmission);
+        multiplayerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleMultiplayerSubmission();
+            }
+        });
+        
+        findOpponentBtn.addEventListener('click', findOpponent);
+        
+        multiplayerInitialized = true;
+    }
+    
+    function findOpponent() {
+        resetMultiplayerUI();
+        startCountdown();
+        room.updatePresence({
+            status: 'ready',
+            submitted: false
+        });
+    }
+    
+    function startCountdown() {
+        timeRemaining = 10;
+        clearInterval(countdownInterval);
+        
+        timerDisplay.textContent = `Time remaining: ${timeRemaining}s`;
+        countdownInterval = setInterval(() => {
+            timeRemaining--;
+            timerDisplay.textContent = `Time remaining: ${timeRemaining}s`;
+            
+            if (timeRemaining <= 0) {
+                clearInterval(countdownInterval);
+                // Auto-submit if time runs out
+                if (!isSubmitted) {
+                    handleMultiplayerSubmission(true);
+                }
+            }
+        }, 1000);
+    }
+    
+    async function handleMultiplayerSubmission(isAuto = false) {
+        const userResponse = multiplayerInput.value.trim();
+        
+        if (!userResponse && !isAuto) {
+            submissionStatus.textContent = "Please enter something!";
+            submissionStatus.style.color = "#f44336";
+            return;
+        }
+        
+        // Clear countdown
+        clearInterval(countdownInterval);
+        
+        submissionStatus.textContent = isAuto ? "Time's up! Auto-submitted." : "Submitted!";
+        submissionStatus.style.color = "#4CAF50";
+        
+        // Generate player emoji and image
+        playerEmojiDisplay.textContent = "⏳";
+        playerEmojiName.textContent = "Generating...";
+        playerLoadingSpinner.style.display = 'block';
+        playerImage.style.display = 'none';
+        
+        try {
+            // Find matching emoji or create a new one
+            let matchingEmoji = emojis.find(e => e.name.toLowerCase() === userResponse.toLowerCase());
+            let userEmoji;
+            
+            if (matchingEmoji) {
+                userEmoji = matchingEmoji;
+            } else {
+                // Generate emoji suggestion from LLM
+                const emojiSuggestion = await suggestEmojiForItem(userResponse);
+                userEmoji = {
+                    emoji: emojiSuggestion || '❓',
+                    name: userResponse.toLowerCase(),
+                    imageUrl: ''
+                };
+            }
+            
+            // Generate image if needed
+            if (!userEmoji.imageUrl) {
+                const result = await websim.imageGen({
+                    prompt: `A detailed illustration of a ${userEmoji.name}, simple clean background, high quality, digital art style`,
+                    aspect_ratio: "1:1"
+                });
+                userEmoji.imageUrl = result.url;
+            }
+            
+            // Update UI with selection
+            playerEmojiDisplay.textContent = userEmoji.emoji;
+            playerEmojiName.textContent = userEmoji.name;
+            playerImage.src = userEmoji.imageUrl;
+            playerImage.style.display = 'block';
+            playerLoadingSpinner.style.display = 'none';
+            
+            // Mark as submitted
+            isSubmitted = true;
+            playerSelection = {
+                emoji: userEmoji.emoji,
+                name: userEmoji.name,
+                imageUrl: userEmoji.imageUrl
+            };
+            
+            room.updatePresence({
+                submitted: true
+            });
+            
+            checkBothSubmitted();
+            
+        } catch (error) {
+            console.error("Error in submission:", error);
+            submissionStatus.textContent = "Error generating your item!";
+            submissionStatus.style.color = "#f44336";
+            playerLoadingSpinner.style.display = 'none';
+        }
+    }
+    
+    function checkBothSubmitted() {
+        if (isSubmitted && opponentSubmitted) {
+            submissionStatus.textContent = "Both players submitted! Resolving battle...";
+            
+            // Get opponent ID
+            const opponentId = Object.keys(room.peers).find(id => id !== room.clientId);
+            
+            if (opponentId) {
+                // Send our selection to opponent
+                room.requestPresenceUpdate(opponentId, {
+                    type: 'challenge',
+                    selection: playerSelection
+                });
+                
+                // Start battle resolution if we have both selections
+                if (playerSelection && opponentSelection) {
+                    resolveBattle();
+                }
+            }
+        }
+    }
+    
+    function handleOpponentSelection(selection, fromClientId) {
+        opponentSelection = selection;
+        
+        // Update UI
+        opponentEmojiDisplay.textContent = selection.emoji;
+        opponentEmojiName.textContent = selection.name;
+        opponentImage.src = selection.imageUrl;
+        opponentImage.style.display = 'block';
+        
+        // Start battle resolution if we have both selections
+        if (playerSelection && opponentSelection) {
+            resolveBattle();
+        }
+    }
+    
+    async function resolveBattle() {
+        multiplayerResultMessage.textContent = "Determining the winner...";
+        countdownTimer.textContent = "Battle!";
+        
+        try {
+            // Check if player selection beats opponent
+            const playerResult = await checkIfBeats(playerSelection.name, opponentSelection);
+            
+            // Create battle result object
+            const battleResult = {
+                playerAId: room.clientId,
+                playerBId: Object.keys(room.peers).find(id => id !== room.clientId),
+                playerASelection: playerSelection,
+                playerBSelection: opponentSelection,
+                playerAWins: playerResult.isWinner,
+                reason: playerResult.reason,
+                timestamp: Date.now(),
+                completed: true
+            };
+            
+            // Update room state with battle result
+            room.updateRoomState({
+                battleResult: battleResult
+            });
+            
+        } catch (error) {
+            console.error("Error resolving battle:", error);
+            multiplayerResultMessage.textContent = "Error determining the winner!";
+        }
+    }
+    
+    function displayBattleResult(result) {
+        const isPlayerA = result.playerAId === room.clientId;
+        const playerWon = isPlayerA ? result.playerAWins : !result.playerAWins;
+        
+        // Update counters
+        if (playerWon) {
+            multiplayerWins++;
+            winCount.textContent = multiplayerWins;
+        } else {
+            multiplayerLosses++;
+            lossCount.textContent = multiplayerLosses;
+        }
+        
+        // Display result message
+        countdownTimer.textContent = playerWon ? "Victory!" : "Defeat!";
+        multiplayerResultMessage.textContent = result.reason;
+        multiplayerResultMessage.style.color = playerWon ? "#4CAF50" : "#f44336";
+        
+        // Add to history
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const playerSide = isPlayerA ? result.playerASelection : result.playerBSelection;
+        const opponentSide = isPlayerA ? result.playerBSelection : result.playerASelection;
+        
+        historyItem.innerHTML = `
+            <div class="history-item-emoji">
+                ${playerSide.emoji}
+                ${playerSide.imageUrl ? `<img class="history-item-image" src="${playerSide.imageUrl}" alt="${playerSide.name}">` : ''}
+            </div>
+            <div class="history-item-text">
+                <span class="${playerWon ? 'win' : 'lose'}">${playerWon ? '✓' : '✕'}</span>
+                VS ${opponentSide.name} ${opponentSide.emoji}
+                ${opponentSide.imageUrl ? `<img class="history-item-image" src="${opponentSide.imageUrl}" alt="${opponentSide.name}">` : ''}
+                <div class="history-item-reason">${result.reason}</div>
+            </div>
+        `;
+        
+        multiplayerHistoryList.insertBefore(historyItem, multiplayerHistoryList.firstChild);
+        
+        // Reset for next round
+        setTimeout(() => {
+            resetMultiplayerUI();
+        }, 5000);
+    }
+    
+    function resetMultiplayerUI() {
+        // Reset state
+        isSubmitted = false;
+        opponentSubmitted = false;
+        playerSelection = null;
+        opponentSelection = null;
+        clearInterval(countdownInterval);
+        
+        // Reset UI
+        playerEmojiDisplay.textContent = "❓";
+        playerEmojiName.textContent = "...";
+        playerImage.src = "";
+        playerImage.style.display = "none";
+        playerLoadingSpinner.style.display = "none";
+        
+        opponentEmojiDisplay.textContent = "❓";
+        opponentEmojiName.textContent = "...";
+        opponentImage.src = "";
+        opponentImage.style.display = "none";
+        
+        submissionStatus.textContent = "";
+        timerDisplay.textContent = "";
+        multiplayerResultMessage.textContent = "";
+        countdownTimer.textContent = "";
+        multiplayerInput.value = "";
+    }
+    
+    async function suggestEmojiForItem(item) {
+        try {
+            const completion = await websim.chat.completions.create({
+                messages: [
+                    {
+                        role: "system",
+                        content: `For the given item, suggest a single emoji character that best represents it. 
+                        Respond with only the emoji character and nothing else.`
+                    },
+                    {
+                        role: "user",
+                        content: item
+                    }
+                ]
+            });
+            
+            return completion.content.trim();
+        } catch (error) {
+            console.error("Error suggesting emoji:", error);
+            return "❓";
+        }
+    }
 });
