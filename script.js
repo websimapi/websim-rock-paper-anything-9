@@ -77,11 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userInput.value = emojiObj.name;
         });
         emojiGrid.appendChild(emojiItem);
-        
-        // Generate image for each emoji
-        if (!emojiObj.imageUrl) {
-            generateImageForEmoji(emojiObj);
-        }
     });
 
     // Handle user submission
