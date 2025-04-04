@@ -14,15 +14,13 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     width: 100%;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
-    font-size: 2.5rem;
+.game-layout {
+    display: flex;
+    gap: 20px;
 }
 
 .game-area {
@@ -30,7 +28,14 @@ h1 {
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    flex: 1;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 2.5rem;
 }
 
 .current-display {
@@ -164,30 +169,12 @@ h1 {
     background-color: white;
 }
 
-.result-area {
-    padding: 15px;
-    border-radius: 5px;
-    margin-top: 20px;
-    text-align: center;
-}
-
-#result-message {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    min-height: 30px;
-    line-height: 1.4;
-}
-
-#score {
-    font-size: 1.1rem;
-    color: #555;
-}
-
 .history {
     background-color: white;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
 }
 
 .history h3 {
@@ -196,7 +183,7 @@ h1 {
 }
 
 #history-list {
-    max-height: 200px;
+    max-height: 500px;
     overflow-y: auto;
 }
 
@@ -241,7 +228,38 @@ h1 {
     color: #f44336;
 }
 
-@media (max-width: 600px) {
+.result-area {
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+#result-message {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    min-height: 30px;
+    line-height: 1.4;
+}
+
+#score {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+@media (max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    
+    .history {
+        width: 100%;
+    }
+    
+    #history-list {
+        max-height: 300px;
+    }
+    
     h1 {
         font-size: 2rem;
     }
@@ -262,4 +280,8 @@ h1 {
         width: 120px;
         height: 120px;
     }
+}
+
+@media (max-width: 600px) {
+    
 }
