@@ -12,6 +12,29 @@ let opponentSelection = null;
 let countdownInterval = null;
 let timeRemaining = 30;
 
+// DOM element references
+const multiplayerEmojiGrid = document.getElementById('multiplayer-emoji-grid');
+const multiplayerInput = document.getElementById('multiplayer-input');
+const multiplayerSubmitBtn = document.getElementById('multiplayer-submit-btn');
+const findOpponentBtn = document.getElementById('find-opponent-btn');
+const connectionStatus = document.getElementById('connection-status');
+const opponentStatus = document.getElementById('opponent-status');
+const playerEmojiDisplay = document.getElementById('player-emoji-display');
+const opponentEmojiDisplay = document.getElementById('opponent-emoji-display');
+const playerEmojiName = document.getElementById('player-emoji-name');
+const opponentEmojiName = document.getElementById('opponent-emoji-name');
+const playerImage = document.getElementById('player-image');
+const opponentImage = document.getElementById('opponent-image');
+const playerLoadingSpinner = document.getElementById('player-loading-spinner');
+const opponentLoadingSpinner = document.getElementById('opponent-loading-spinner');
+const submissionStatus = document.getElementById('submission-status');
+const timerDisplay = document.getElementById('timer-display');
+const multiplayerResultMessage = document.getElementById('multiplayer-result-message');
+const countdownTimer = document.getElementById('countdown-timer');
+const multiplayerHistoryList = document.getElementById('multiplayer-history-list');
+const winCount = document.getElementById('win-count');
+const lossCount = document.getElementById('loss-count');
+
 // Initialize Multiplayer Mode
 async function initializeMultiplayerMode() {
     if (multiplayerInitialized) return;
