@@ -173,9 +173,10 @@ function startCountdown() {
         
         if (timeRemaining <= 0) {
             clearInterval(countdownInterval);
-            // Auto-submit if time runs out
+            // Notify the user that time is up, but don't auto-submit
             if (!isSubmitted) {
-                handleMultiplayerSubmission(true);
+                submissionStatus.textContent = "Time's up! Please make a selection.";
+                submissionStatus.style.color = "#f44336";
             }
         }
     }, 1000);
@@ -184,7 +185,7 @@ function startCountdown() {
 async function handleMultiplayerSubmission(isAuto = false) {
     const userResponse = multiplayerInput.value.trim();
     
-    if (!userResponse && !isAuto) {
+    if (!userResponse) {
         submissionStatus.textContent = "Please enter something!";
         submissionStatus.style.color = "#f44336";
         return;
@@ -193,7 +194,7 @@ async function handleMultiplayerSubmission(isAuto = false) {
     // Clear countdown
     clearInterval(countdownInterval);
     
-    submissionStatus.textContent = isAuto ? "Time's up! Auto-submitted." : "Submitted!";
+    submissionStatus.textContent = "Submitted!";
     submissionStatus.style.color = "#4CAF50";
     
     // Generate player emoji and image - don't display yet, just prepare
